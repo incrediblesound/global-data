@@ -119,7 +119,7 @@ Drawing.SphereGraph = function(options) {
 
   var geometries = [];
 
-  var sphere_radius = 4900;
+  var sphere_radius = 5000;
   var max_X = sphere_radius;
   var min_X = -sphere_radius;
   var max_Y = sphere_radius;
@@ -223,61 +223,94 @@ Drawing.SphereGraph = function(options) {
    *  numNodes and numEdges.
    */
   function createGraph() {
-    var node = new Node(0);
-    graph.addNode(node);
-    drawNode(node);
+    var cities = [
+    {data: 'Bordeax', position: {x:44,y:0} },
+    {data: 'Bangkok', position: {x:13,y:100} },
+    {data: 'Bombay',  position: {x:19,y:72} },
+    {data: 'Beijing', position:  {x:39,y:116} },
+    {data: 'Berlin', position:   {x:52, y:13} },
+    {data: 'Brisbane', position: {x:(-27),y:153} },
+    {data: 'Santiago', position: {x:(-33),y:(-70)} }
+    ]
 
-    var nodes = [];
-    nodes.push(node);
+    var nodes = [], targets = [];
 
-    var steps = 1;
-    while(nodes.length != 0 && steps < that.nodes_count) {
-      var node = nodes.shift();
-
-      var numEdges = randomFromTo(1, that.edges_count);
-      for(var i=1; i <= numEdges; i++) {
-        var target_node = new Node(i*steps);
-        if(graph.addNode(target_node)) {
-          drawNode(target_node);
-          nodes.push(target_node);
-          if(graph.addEdge(node, target_node)) {
-            drawEdge(node, target_node);
-          }
-        }
-      }
-      steps++;
+    for(var i = 0; i < cities.length; i++){
+      var node = new Node(i);
+      node.data.name = cities[i].data;
+      node.position = cities[i].position
+      nodes.push(node);
+      graph.addNode(node);
+      drawNode(node);
     }
 
+    while(nodes.length){
+      var current = nodes.shift();
+      for(var l = 0; l < nodes.length; l++){
+        var target = nodes[l];
+        if(graph.addEdge(current, target)) {
+          drawEdge(current, target);
+        }
+      }
+    }
+    // var node = new Node(0);
+    // graph.addNode(node);
+    // drawNode(node);
+
+    // var nodes = [];
+    // nodes.push(node);
+
+    // var steps = 1;
+    // while(nodes.length != 0 && steps < that.nodes_count) {
+    //   var node = nodes.shift();
+
+    //   var numEdges = randomFromTo(1, that.edges_count);
+    //   for(var i=1; i <= numEdges; i++) {
+    //     var target_node = new Node(i*steps);
+    //     if(graph.addNode(target_node)) {
+    //       drawNode(target_node);
+    //       nodes.push(target_node);
+    //       if(graph.addEdge(node, target_node)) {
+    //         drawEdge(node, target_node);
+    //       }
+    //     }
+    //   }
+    //   steps++;
+    // }
+
     // Transform a lat, lng-position to x,y.
-    graph.layout = new Layout.ForceDirected(graph, {width: 2000, height: 2000, iterations: 1000, positionUpdated: function(node) {
-      max_X = Math.max(max_X, node.position.x);
-      min_X = Math.min(min_X, node.position.x);
-      max_Y = Math.max(max_Y, node.position.y);
-      min_Y = Math.min(min_Y, node.position.y);
+    // graph.layout = new Layout.ForceDirected(graph, {width: 2000, height: 2000, iterations: 1000, positionUpdated: function(node) {
+    //   max_X = Math.max(max_X, node.position.x);
+    //   min_X = Math.min(min_X, node.position.x);
+    //   max_Y = Math.max(max_Y, node.position.y);
+    //   min_Y = Math.min(min_Y, node.position.y);
 
-      var lat, lng;
-      if(node.position.x < 0) {
-        lat = (-90/min_X) * node.position.x;
-      } else {
-        lat = (90/max_X) * node.position.x;
-      }
-      if(node.position.y < 0) {
-        lng = (-180/min_Y) * node.position.y;
-      } else {
-        lng = (180/max_Y) * node.position.y;
-      }
 
-      var area = 5000;
-      var phi = (90 - lat) * Math.PI / 180;
-      var theta = (180 - lng) * Math.PI / 180;
-      node.data.draw_object.position.x = area * Math.sin(phi) * Math.cos(theta);
-      node.data.draw_object.position.y = area * Math.cos(phi);
-      node.data.draw_object.position.z = area * Math.sin(phi) * Math.sin(theta);
+    //   var lat, lng;
+    //   lat = node.position.x;
+    //   lng = node.position.y;
+    //   // if(node.position.x < 0) {
+    //   //   lat = (-90/min_X) * node.position.x;
+    //   // } else {
+    //   //   lat = (90/max_X) * node.position.x;
+    //   // }
+    //   // if(node.position.y < 0) {
+    //   //   lng = (-180/min_Y) * node.position.y;
+    //   // } else {
+    //   //   lng = (180/max_Y) * node.position.y;
+    //   // }
 
-    }});
-    graph.layout.init();
-    info_text.nodes = "Nodes " + graph.nodes.length;
-    info_text.edges = "Edges " + graph.edges.length;
+    //   var area = 5000;
+    //   var phi = (90 - lat) * Math.PI / 180;
+    //   var theta = (180 - lng) * Math.PI / 180;
+    //   node.data.draw_object.position.x = area * Math.sin(phi) * Math.cos(theta);
+    //   node.data.draw_object.position.y = area * Math.cos(phi);
+    //   node.data.draw_object.position.z = area * Math.sin(phi) * Math.sin(theta);
+
+    // }});
+    // graph.layout.init();
+    // info_text.nodes = "Nodes " + graph.nodes.length;
+    // info_text.edges = "Edges " + graph.edges.length;
   }
 
 
@@ -287,12 +320,12 @@ Drawing.SphereGraph = function(options) {
   function drawNode(node) {
     var draw_object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {  color: Math.random() * 0xffffff } ) );
 
-    var area = 2000;
-    draw_object.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-    draw_object.position.y = Math.floor(Math.random() * (area + area + 1) - area);
-
-    node.position.x = Math.floor(Math.random() * (area + area + 1) - area);
-    node.position.y = Math.floor(Math.random() * (area + area + 1) - area);
+    var area = 5000;
+      var phi = (90 - node.position.x) * Math.PI / 180;
+      var theta = (180 - node.position.y) * Math.PI / 180;
+      node.position.x = area * Math.sin(phi) * Math.cos(theta);
+      node.position.y = area * Math.cos(phi);
+      node.position.z = area * Math.sin(phi) * Math.sin(theta);
 
     draw_object.id = node.id;
     node.data.draw_object = draw_object;
@@ -302,7 +335,7 @@ Drawing.SphereGraph = function(options) {
     node.layout.max_Y = 180;
     node.layout.min_Y = -180;
 
-    // node.position = draw_object.position;
+    node.data.draw_object.position = node.position;
     scene.add( node.data.draw_object );
   }
 
@@ -311,19 +344,37 @@ Drawing.SphereGraph = function(options) {
    *  Create an edge object (line) and add it to the scene.
    */
   function drawEdge(source, target) {
-    material = new THREE.LineBasicMaterial( { color: 0xCCCCCC, opacity: 0.5, linewidth: 1 } );
-    var tmp_geo = new THREE.Geometry();
+    // material = new THREE.LineBasicMaterial( { color: 0xCCCCCC, opacity: 0.5, linewidth: 1 } );
+    // var tmp_geo = new THREE.Geometry();
+    // tmp_geo.vertices.push(source.position);
+    // tmp_geo.vertices.push(target.position);
 
-    tmp_geo.vertices.push(source.data.draw_object.position);
-    tmp_geo.vertices.push(target.data.draw_object.position);
+    // line = new THREE.Line( tmp_geo, material, THREE.LinePieces );
+    // line.scale.x = line.scale.y = line.scale.z = 1;
+    // line.originalScale = 1;
 
-    line = new THREE.Line( tmp_geo, material, THREE.LinePieces );
-    line.scale.x = line.scale.y = line.scale.z = 1;
-    line.originalScale = 1;
+    // geometries.push(tmp_geo);
 
-    geometries.push(tmp_geo);
-
-    scene.add( line );
+    // scene.add( line );
+    var sourceXy = source.position;
+    var targetXy = target.position;
+    var AvgX = (sourceXy['x'] + targetXy['x']) / 2;
+    var AvgY = (sourceXy['y'] + targetXy['y']) / 2;
+    var AvgZ = (sourceXy['z'] + targetXy['z']) / 2;
+    var diffX = Math.abs(sourceXy['x'] - targetXy['x']);
+    var diffY = Math.abs(sourceXy['y'] - targetXy['y']);
+    var middle = [ AvgX, AvgY, AvgZ + (diffX+diffY/1.3) ];
+    if(target.data.name === "Santiago"){
+    }
+    var curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(sourceXy['x'], sourceXy['y'], sourceXy['z']), new THREE.Vector3(middle[0], middle[1], middle[2]), new THREE.Vector3(targetXy['x'], targetXy['y'], targetXy['z']));
+    var path = new THREE.CurvePath();
+    path.add(curve);
+    var curveMaterial = new THREE.LineBasicMaterial({
+      color: "red", linewidth: 2
+    });
+    curvedLine = new THREE.Line(path.createPointsGeometry(400), curveMaterial);
+    curvedLine.lookAt(new THREE.Vector3(0,0,0));
+    scene.add(curvedLine);
   }
 
 
@@ -339,12 +390,12 @@ Drawing.SphereGraph = function(options) {
 
   function render() {
     // Generate layout if not finished
-    if(!graph.layout.finished) {
-      info_text.calc = "<span style='color: red'>Calculating layout...</span>";
-      graph.layout.generate();
-    } else {
-      info_text.calc = "";
-    }
+    // if(!graph.layout.finished) {
+    //   info_text.calc = "<span style='color: red'>Calculating layout...</span>";
+    //   graph.layout.generate();
+    // } else {
+    //   info_text.calc = "";
+    // }
 
     // Update position of lines (edges)
     for(var i=0; i<geometries.length; i++) {
